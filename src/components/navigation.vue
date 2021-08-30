@@ -50,7 +50,7 @@ export default {
     name: "navigation",
     methods: {
         logout(){
-            
+            console.log(process.env.VUE_APP_BASE_HOST_API_ADMIN)
             axios.post(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/logout`,{},{
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('jwt-admin')}`,
