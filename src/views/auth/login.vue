@@ -54,7 +54,7 @@ export default {
     },
     methods: {
         submit() {
-            axios.post(`${process.env.VUE_APP_BASE_HOST_API}/admin/login`,{
+            axios.post(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/login`,{
                 "email": this.email,
                 "password": this.password,
             }).then(result => {
