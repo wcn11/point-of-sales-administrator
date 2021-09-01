@@ -50,7 +50,6 @@ export default {
     name: "navigation",
     methods: {
         logout(){
-            console.log(process.env.VUE_APP_BASE_HOST_API_ADMIN)
             axios.post(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/logout`,{},{
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('jwt-admin')}`,
@@ -60,9 +59,7 @@ export default {
                 
             }).then( function(result) {
 
-                console.log(result)
-
-                if(result.data.message){
+                if(result.data.success){
                     localStorage.removeItem('jwt-admin', "")
                     window.location.href = "/login"
                 }

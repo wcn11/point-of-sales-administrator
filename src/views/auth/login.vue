@@ -59,22 +59,23 @@ export default {
                 "password": this.password,
             }).then(result => {
 
-                let data = result.data
+                if(result['data']['success']){
 
-                localStorage.setItem('jwt-admin', data['token']['access_token'])
+                    let data = result.data['data']
 
-                        if (localStorage.getItem('jwt-admin') != null){
+                    localStorage.setItem('jwt-admin', data['token']['access_token'])
 
-                            if(this.$route.params.nextUrl != null){
-                                this.$router.push(this.$route.params.nextUrl)
+                            if (localStorage.getItem('jwt-admin') != null){
+
+                                if(this.$route.params.nextUrl != null){
+                                    this.$router.push(this.$route.params.nextUrl)
+                                }
+                                else {
+                                        window.location = "/"
+                                }
                             }
-                            else {
-                                    window.location = "/"
-                                    // this.$router.push('/')
-                            }
-                        }
+                }
             }).catch(error => {
-                console.log(error.response)
                 this.$alertify.error(error.response['data']['message'])
 
                 this.email = ""
