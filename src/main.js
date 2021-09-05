@@ -10,7 +10,6 @@ Vue.prototype.$http = axios;
 window.$ = window.jQuery = require("jquery");
 
 import bootstrapSwitch from "bootstrap-switch"
-
 Vue.use(bootstrapSwitch)
 
 require('bootstrap')

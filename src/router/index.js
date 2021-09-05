@@ -45,11 +45,17 @@ const routes = [{
     meta: {
       requiresAuth: true
     }
-  },
-  {
+  }, {
     path: '/user/edit/:id',
     name: 'UserUpdate',
     component: () => import( /* webpackChunkName: "about" */ '../views/users/UserEdit.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  }, {
+    path: '/items',
+    name: 'items',
+    component: () => import( /* webpackChunkName: "about" */ '../views/item/Item.vue'),
     meta: {
       requiresAuth: true
     }
