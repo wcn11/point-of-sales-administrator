@@ -112,12 +112,21 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="commission">Komisi</label>
+        <label for="commission">Komisi Pusat</label>
         <input
           name="commission"
           id="commission"
           class="form-control"
           v-model.number="commission"
+        />
+      </div>
+      <div class="form-group">
+        <label for="partnerCommission">Komisi Mitra</label>
+        <input
+          name="partnerCommission"
+          id="partnerCommission"
+          class="form-control"
+          v-model.number="partnerCommission"
         />
       </div>
 
@@ -186,6 +195,7 @@ export default {
       selectedCustomerDefault: {},
       selectedGlAccount: {},
       commission: 0,
+      partnerCommission:0,
       is_active: false,
       is_admin: false,
     };
@@ -211,6 +221,7 @@ export default {
               this.email = user["email"];
               this.selectedWarehouse = user;
               this.commission = user["commission"];
+              this.partnerCommission = user["partnerCommission"];
               this.is_active = user["is_active"];
               this.is_admin = user["is_admin"];
             }
@@ -367,6 +378,7 @@ export default {
             selectedCustomerDefault: this.selectedCustomerDefault,
             selectedGlAccount: this.selectedGlAccount,
             commission: this.commission,
+            partnerCommission: this.partnerCommission,
             is_active: this.is_active,
             is_admin: this.is_admin,
           },

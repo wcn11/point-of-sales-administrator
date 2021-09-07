@@ -48,7 +48,7 @@
             <i class="fad fa-usd-circle"></i> Mass Update Harga
           </button>
           <button
-            class="btn btn-warning"
+            class="btn btn-warning mr-1"
             id="btn-update-mass-price"
             data-toggle="tooltip"
             data-placement="bottom"
@@ -56,6 +56,14 @@
           >
             <i class="fad fa-usd-circle"></i> tambah mitra
           </button>
+          <router-link :to="{ name: 'items' }" class="text-decoration-none btn btn-dark"
+            id="btn-update-mass-price"
+            data-toggle="tooltip"
+            data-placement="bottom"
+            title="Update Masal Seluruh Harga Produk"
+          >
+            <i class="fad fa-box-usd"></i> Pengaturan Produk
+          </router-link>
         </div>
       </div>
       <div class="col-md-2">

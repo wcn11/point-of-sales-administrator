@@ -17,6 +17,10 @@ require("./plugins/css/bootstrap.min.css")
 
 import VueMeta from 'vue-meta'
 
+import VueDebounce from 'vue-debounce'
+
+Vue.use(VueDebounce)
+
 import VueAlertify from 'vue-alertify';
 
 Vue.use(VueMeta, {

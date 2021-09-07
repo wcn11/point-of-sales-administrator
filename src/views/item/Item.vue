@@ -1,132 +1,58 @@
 <template>
   <div>
-    <header>
-      <div class="row">
-        <div class="col-md-12 d-flex">
-          <div>
-            <button
-              class="btn btn-info"
-              id="btn-update-mass-price"
-              data-toggle="tooltip"
-              data-placement="bottom"
-              title="Update Masal Seluruh Harga Produk"
-            >
-              <i class="fad fa-usd-circle"></i> Mass Update Harga
-            </button>
-          </div>
-          <div>
-            <button
-              class="btn btn-primary"
-              id="btn-add-product"
-              data-toggle="tooltip"
-              data-placement="bottom"
-              title="Tambah Produk Baru (Sinkron Dengan Accurate)"
-              @click="addProduct"
-            >
-              <i class="fad fa-usd-circle"></i> Produk Baru
-            </button>
-          </div>
-          <div>
-            <button
-              class="btn btn-success rounded-circle"
-              id="btn-sync"
-              data-toggle="tooltip"
-              data-placement="bottom"
-              title="Sinkron Dengan Accurate"
-              @click="sync"
-            >
-              <i class="fad fa-sync-alt"></i>
-            </button>
-          </div>
-        </div>
-      </div>
+    <header class="card-header header-category" v-if="products">
+      <h2 class="headline">Pengaturan Produk</h2>
+
+      <button
+        class="btn btn-success rounded-circle"
+        id="btn-sync"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Sinkron Dengan Accurate"
+        @click="sync"
+      >
+        <i class="fad fa-sync-alt"></i>
+      </button>
     </header>
 
-    <div v-for="(product, index) in products" :key="index">
-      <p>
-        <a
-          class="btn btn-primary"
-          data-toggle="collapse"
-          :href="`#collapese-${product['id']}`"
-          role="button"
-          aria-expanded="false"
-          aria-controls="multiCollapseExample1"
-          >{{ product["name"] }}</a
-        >
-      </p>
+    <div class="row mt-5">
+      <div
+        class="col-md-3 col-sm-4 resource-container"
+        v-for="(product, index) in products"
+        :key="index"
+      >
+        <div class="card card-container">
+          <div class="text-center">
+            <img
+              :src="getImage(product['no'])"
+              class="card-img-top"
+              alt="Gambar Ayam"
+              @click="openModalProduct(product['id'])"
+            />
+          </div>
+          <div class="card-body">
+            <h5 class="card-title card-title-product">{{ product["name"] }}</h5>
+            <span></span>
 
-      <div class="row">
-        <div class="col">
-          <div
-            class="collapse multi-collapse"
-            :id="`collapese-${product['id']}`"
-          >
-            <div class="card card-body">
-              <form>
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label for="inputEmail4">Email</label>
-                    <input type="email" class="form-control" id="inputEmail4" />
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label for="inputPassword4">Password</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="inputPassword4"
-                    />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="inputAddress">Address</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="inputAddress"
-                    placeholder="1234 Main St"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="inputAddress2">Address 2</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="inputAddress2"
-                    placeholder="Apartment, studio, or floor"
-                  />
-                </div>
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label for="inputCity">City</label>
-                    <input type="text" class="form-control" id="inputCity" />
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="inputState">State</label>
-                    <select id="inputState" class="form-control">
-                      <option selected>Choose...</option>
-                      <option>...</option>
-                    </select>
-                  </div>
-                  <div class="form-group col-md-2">
-                    <label for="inputZip">Zip</label>
-                    <input type="text" class="form-control" id="inputZip" />
-                  </div>
-                </div>
-                <div class="form-group">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="gridCheck"
-                    />
-                    <label class="form-check-label" for="gridCheck">
-                      Check me out
-                    </label>
-                  </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Sign in</button>
-              </form>
-            </div>
+            <p>Harga dasar</p>
+            <h6 class="price" @dblclick="editPriceLabel($event, product['id'])">
+              {{ product["basic_price"] | formatMoney }}
+            </h6>
+
+            <p>Komisi Pusat</p>
+            <h6 class="price" @dblclick="editPriceLabel($event, product['id'])">
+              {{ product["centralCommission"] | formatMoney }}
+            </h6>
+
+            <p>Komisi Mitra</p>
+            <h6 class="price" @dblclick="editPriceLabel($event, product['id'])">
+              {{ product["partnerCommission"] | formatMoney }}
+            </h6>
+
+            <p>Total Harga</p>
+            <h6 class="price" @dblclick="editPriceLabel($event, product['id'])">
+              {{ product["grand_price"] | formatMoney }}
+            </h6>
           </div>
         </div>
       </div>
@@ -148,34 +74,164 @@
           <div class="modal-body">
             <div>
               <div class="form-group">
-                <label for="name">code</label>
+                <label for="name">UPC / Barcode</label>
                 <input
                   type="text"
                   class="form-control"
+                  :class="{ 'is-invalid': addProduct['code']['error'] }"
                   id="code"
-                  placeholder="0040001"
-                  v-model="code"
+                  placeholder="cth: 0040001"
+                  v-model="addProduct['code']['data']"
                 />
+                <div class="invalid-feedback">
+                  {{ addProduct["code"]["errorMessage"] }}
+                </div>
               </div>
               <div class="form-group">
                 <label for="name">nama</label>
                 <input
                   type="text"
                   class="form-control"
+                  :class="{ 'is-invalid': addProduct['name']['error'] }"
                   id="name"
                   placeholder="Paha Utuh 500 gr"
-                  v-model="name"
+                  v-model="addProduct['name']['data']"
                 />
+                <div class="invalid-feedback">
+                  {{ addProduct["name"]["errorMessage"] }}
+                </div>
               </div>
               <div class="form-group">
-                <label for="price">harga</label>
+                <label for="name">Tipe</label>
+                <select
+                  name="type"
+                  id="type"
+                  class="form-control"
+                  :class="{ 'is-invalid': addProduct['type']['error'] }"
+                  v-model="addProduct['type']['data']"
+                >
+                  <option value="" disabled selected>Tipe Barang</option>
+                  <option
+                    v-for="(type, index) in addProduct['type'][
+                      'additionalData'
+                    ]"
+                    :key="index"
+                    :value="type"
+                  >
+                    {{ type }}
+                  </option>
+                </select>
+                <div class="invalid-feedback">
+                  {{ addProduct["type"]["errorMessage"] }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="category">Kategori</label>
+                <select
+                  name="category"
+                  id="category"
+                  class="form-control"
+                  :class="{ 'is-invalid': addProduct['category']['error'] }"
+                  v-model="addProduct['category']['data']"
+                >
+                  <option value="" disabled selected>Kategori Barang</option>
+                  <option
+                    v-for="(category, index) in addProduct['category'][
+                      'additionalData'
+                    ]"
+                    :key="index"
+                    :value="category['id']"
+                  >
+                    {{ category["name"] }}
+                  </option>
+                </select>
+                <div class="invalid-feedback">
+                  {{ addProduct["category"]["errorMessage"] }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="name">Unit</label>
+                <select
+                  name="unit"
+                  id="unit"
+                  class="form-control"
+                  :class="{ 'is-invalid': addProduct['unit']['error'] }"
+                  v-model="addProduct['unit']['data']"
+                >
+                  <option value="" disabled selected>Unit Barang</option>
+                  <option
+                    v-for="(unit, index) in addProduct['unit'][
+                      'additionalData'
+                    ]"
+                    :key="index"
+                    :value="unit['id']"
+                  >
+                    {{ unit["name"] }}
+                  </option>
+                </select>
+                <div class="invalid-feedback">
+                  {{ addProduct["unit"]["errorMessage"] }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="price">harga dasar</label>
                 <input
                   type="text"
                   class="form-control"
+                  :class="{ 'is-invalid': addProduct['price']['error'] }"
                   id="price"
                   placeholder="20.000,00"
-                  v-model="price"
+                  v-model="addProduct['price']['data']"
                 />
+                <div class="invalid-feedback">
+                  {{ addProduct["price"]["errorMessage"] }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="centralCommission">komisi pusat</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  :class="{
+                    'is-invalid': addProduct['centralCommission']['error'],
+                  }"
+                  id="centralCommission"
+                  placeholder="Rp 1.000,00"
+                  v-model="addProduct['centralCommission']['data']"
+                />
+                <div class="invalid-feedback">
+                  {{ addProduct["centralCommission"]["errorMessage"] }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="partnerCommission">komisi mitra</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  :class="{
+                    'is-invalid': addProduct['partnerCommission']['error'],
+                  }"
+                  id="partnerCommission"
+                  placeholder="Rp 4.000,00"
+                  v-model="addProduct['partnerCommission']['data']"
+                />
+                <div class="invalid-feedback">
+                  {{ addProduct["partnerCommission"]["errorMessage"] }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="grand_price">harga jual</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  :class="{ 'is-invalid': addProduct['grand_price']['error'] }"
+                  id="grand_price"
+                  placeholder="Rp 25.000,00"
+                  v-model="addProduct['grand_price']['data']"
+                />
+                <div class="invalid-feedback">
+                  {{ addProduct["grand_price"]["errorMessage"] }}
+                </div>
               </div>
               <div class="form-group">
                 <label for="price">Foto / Gambar</label>
@@ -204,6 +260,315 @@
         </div>
       </div>
     </div>
+
+    <div
+      class="modal fade"
+      id="modal-product"
+      tabindex="-1"
+      aria-labelledby="modal-productLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" v-if="selectedProduct">
+        <header class="bg-info text-center p-2">
+          <h2 class="text-white">Produk {{ selectedProduct["name"] }}</h2>
+        </header>
+        <div class="modal-content">
+          <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+              <a
+                class="nav-link active"
+                id="nav-home-tab"
+                data-toggle="tab"
+                href="#nav-home"
+                role="tab"
+                aria-controls="nav-home"
+                aria-selected="true"
+                >Detail</a
+              >
+              <a
+                class="nav-link"
+                id="nav-profile-tab"
+                data-toggle="tab"
+                href="#nav-profile"
+                role="tab"
+                aria-controls="nav-profile"
+                aria-selected="false"
+                @click="openEditProduct"
+                >Edit</a
+              >
+            </div>
+          </nav>
+          <div class="tab-content" id="nav-tabContent">
+            <div
+              class="tab-pane fade show active"
+              id="nav-home"
+              role="tabpanel"
+              aria-labelledby="nav-home-tab"
+            >
+              <div class="container-fluid">
+                <img
+                  :src="getImage(selectedProduct['no'])"
+                  class="img-fluid rounded w-100"
+                  alt="Gambar Ayam"
+                />
+
+                <h3>{{ selectedProduct["name"] }}</h3>
+                <small class="badge badge-pill badge-success">{{
+                  selectedProduct["type"]
+                }}</small>
+                <p>{{ selectedProduct["no"] }}</p>
+
+                <span class="badge badge-pill badge-secondary text-uppercase">{{
+                  selectedProduct["unit_name"]
+                }}</span>
+                <div>
+                  <h4>
+                    <b>Harga Dasar</b>
+                    {{ selectedProduct["basic_price"] | formatMoney }}
+                  </h4>
+                  <h4>
+                    <b>Komisi Pusat</b>
+                    {{ selectedProduct["centralCommission"] | formatMoney }}
+                  </h4>
+                  <h4>
+                    <b>Komisi Mitra</b>
+                    {{ selectedProduct["partnerCommission"] | formatMoney }}
+                  </h4>
+                  <h4>
+                    <b>Harga Jual</b>
+                    {{ selectedProduct["grand_price"] | formatMoney }}
+                  </h4>
+                </div>
+              </div>
+            </div>
+            <div
+              class="tab-pane fade"
+              id="nav-profile"
+              role="tabpanel"
+              aria-labelledby="nav-profile-tab"
+            >
+              <div class="modal-content">
+                <div class="modal-body">
+                  <div>
+                    <div class="form-group">
+                      <label for="name">UPC / Barcode</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="{ 'is-invalid': editProduct['code']['error'] }"
+                        id="code"
+                        placeholder="cth: 0040001"
+                        v-model="editProduct['code']['data']"
+                      />
+                      <div class="invalid-feedback">
+                        {{ editProduct["code"]["errorMessage"] }}
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="name">nama</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="{ 'is-invalid': editProduct['name']['error'] }"
+                        id="name"
+                        placeholder="Paha Utuh 500 gr"
+                        v-model="editProduct['name']['data']"
+                      />
+                      <div class="invalid-feedback">
+                        {{ editProduct["name"]["errorMessage"] }}
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="name">Tipe</label>
+                      <select
+                        name="type"
+                        id="type"
+                        class="form-control"
+                        :class="{ 'is-invalid': editProduct['type']['error'] }"
+                        v-model="editProduct['type']['data']"
+                      >
+                        <option value="" disabled selected>Tipe Barang</option>
+                        <option
+                          v-for="(type, index) in editProduct['type'][
+                            'additionalData'
+                          ]"
+                          :key="index"
+                          :value="type"
+                        >
+                          {{ type }}
+                        </option>
+                      </select>
+                      <div class="invalid-feedback">
+                        {{ editProduct["type"]["errorMessage"] }}
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="category">Kategori</label>
+                      <select
+                        name="category"
+                        id="category"
+                        class="form-control"
+                        :class="{ 'is-invalid': editProduct['category']['error'] }"
+                        v-model="editProduct['category']['data']"
+                      >
+                        <option value="" disabled selected>Kategori Barang</option>
+                        <option
+                          v-for="(category, index) in editProduct['category'][
+                            'additionalData'
+                          ]"
+                          :key="index"
+                          :value="category['id']"
+                        >
+                          {{ category['name'] }}
+                        </option>
+                      </select>
+                      <div class="invalid-feedback">
+                        {{ editProduct["type"]["errorMessage"] }}
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="name">Unit</label>
+                      <select
+                        name="unit"
+                        id="unit"
+                        class="form-control"
+                        :class="{ 'is-invalid': editProduct['unit']['error'] }"
+                        v-model="editProduct['unit']['data']"
+                      >
+                        <option value="" disabled selected>Unit Barang</option>
+                        <option
+                          v-for="(unit, index) in editProduct['unit'][
+                            'additionalData'
+                          ]"
+                          :key="index"
+                          :value="unit['id']"
+                        >
+                          {{ unit["name"] }}
+                        </option>
+                      </select>
+                      <div class="invalid-feedback">
+                        {{ editProduct["type"]["errorMessage"] }}
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="price">harga dasar</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="{ 'is-invalid': editProduct['price']['error'] }"
+                        id="price"
+                        placeholder="20.000,00"
+                        v-model="editProduct['price']['data']"
+                      />
+                      <div class="invalid-feedback">
+                        {{ editProduct["price"]["errorMessage"] }}
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="centralCommission">komisi pusat</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="{
+                          'is-invalid':
+                            editProduct['centralCommission']['error'],
+                        }"
+                        id="centralCommission"
+                        placeholder="Rp 1.000,00"
+                        v-model="editProduct['centralCommission']['data']"
+                      />
+                      <div class="invalid-feedback">
+                        {{ editProduct["centralCommission"]["errorMessage"] }}
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="partnerCommission">komisi mitra</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="{
+                          'is-invalid':
+                            editProduct['partnerCommission']['error'],
+                        }"
+                        id="partnerCommission"
+                        placeholder="Rp 4.000,00"
+                        v-model="editProduct['partnerCommission']['data']"
+                      />
+                      <div class="invalid-feedback">
+                        {{ editProduct["partnerCommission"]["errorMessage"] }}
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="grand_price">harga jual</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="{
+                          'is-invalid': editProduct['grand_price']['error'],
+                        }"
+                        id="grand_price"
+                        placeholder="Rp 25.000,00"
+                        v-model="editProduct['grand_price']['data']"
+                      />
+                      <div class="invalid-feedback">
+                        {{ editProduct["grand_price"]["errorMessage"] }}
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="price">Foto / Gambar</label>
+                      <input
+                        type="file"
+                        ref="imageUpdate"
+                        class="form-control"
+                        id="image"
+                        @change="handleFileUpdate"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                  >
+                    tutup
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    @click="updateProduct"
+                  >
+                    simpan
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer justify-content-center">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              tutup
+            </button>
+            <!-- <button type="button" class="btn btn-primary" @click="saveProduct">
+              simpan
+            </button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-add-product" @click="openModalAddProduct">
+      <button class="btn btn-info rounded-circle">
+        <i class="fad fa-user-plus"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -212,23 +577,262 @@ import $ from "jquery";
 
 export default {
   name: "Item",
+  components: {},
   data() {
     return {
       products: [],
-      name: "",
-      price: 0,
-      code: "",
-      image: "",
+      addProduct: {
+        code: {
+          data: "",
+          error: false,
+          errorMessage: "",
+        },
+        name: {
+          data: "",
+          error: false,
+          errorMessage: "",
+        },
+        type: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: [
+            "GROUP",
+            "INVENTORY",
+            "NON_INVENTORY",
+            "PRODUCTION_COST",
+            "SERVICE",
+            "VARIANT",
+          ],
+        },
+        category: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: [],
+        },
+        unit: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: [],
+        },
+        price: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        centralCommission: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        partnerCommission: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        grand_price: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        image: {
+          data: "",
+          error: false,
+          errorMessage: "",
+        },
+      },
+      editProduct: {
+        code: {
+          data: "",
+          error: false,
+          errorMessage: "",
+        },
+        name: {
+          data: "",
+          error: false,
+          errorMessage: "",
+        },
+        type: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: [
+            "GROUP",
+            "INVENTORY",
+            "NON_INVENTORY",
+            "PRODUCTION_COST",
+            "SERVICE",
+            "VARIANT",
+          ],
+        },
+        category: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: [],
+        },
+        unit: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: [],
+        },
+        price: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        centralCommission: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        partnerCommission: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        grand_price: {
+          data: 0,
+          error: false,
+          errorMessage: "",
+        },
+        image: {
+          data: "",
+          error: false,
+          errorMessage: "",
+        },
+      },
+
+      selectedProduct: {},
     };
   },
   methods: {
+    updateProduct() {
+      var bodyFormData = new FormData();
+
+      bodyFormData.append("code", this.editProduct["code"]["data"]);
+      bodyFormData.append("name", this.editProduct["name"]["data"]);
+      bodyFormData.append("type", this.editProduct["type"]["data"]);
+      bodyFormData.append("category", this.editProduct["category"]["data"]);
+      bodyFormData.append("unit", this.editProduct["unit"]["data"]);
+      bodyFormData.append("price", this.editProduct["price"]["data"]);
+      bodyFormData.append("centralCommission", this.editProduct["centralCommission"]["data"]);
+      bodyFormData.append("partnerCommission", this.editProduct["partnerCommission"]["data"]);
+      bodyFormData.append("grand_price", this.editProduct["grand_price"]["data"]);
+      bodyFormData.append("image", this.editProduct["image"]["data"]);
+
+      return this.$http
+        .post(
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/${this.selectedProduct["id"]}`,
+
+          bodyFormData,
+
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((results) => {
+          if (results["data"]["success"]) {
+            this.$alertify.success(results["data"]["message"]);
+            this.items();
+            this.addProduct = {
+              code: {
+                data: "",
+                error: false,
+                errorMessage: "",
+              },
+              name: {
+                data: "",
+                error: false,
+                errorMessage: "",
+              },
+              type: {
+                data: "",
+                error: false,
+                errorMessage: "",
+                additionalData: [
+                  "GROUP",
+                  "INVENTORY",
+                  "NON_INVENTORY",
+                  "PRODUCTION_COST",
+                  "SERVICE",
+                  "VARIANT",
+                ],
+              },
+              unit: {
+                data: "",
+                error: false,
+                errorMessage: "",
+                additionalData: [],
+              },
+              category: {
+                data: "",
+                error: false,
+                errorMessage: "",
+                additionalData: [],
+              },
+              price: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              centralCommission: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              partnerCommission: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              grand_price: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              image: {
+                data: "",
+                error: false,
+                errorMessage: "",
+              },
+            };
+            $("#modal-product").modal("hide");
+          }
+        })
+        .catch((error) => {
+          if(error.response.data.success)
+            this.$alertify.error(error.response["data"]["message"]);
+        });
+    },
     saveProduct() {
       var bodyFormData = new FormData();
 
-      bodyFormData.append("code", this.code);
-      bodyFormData.append("name", this.name);
-      bodyFormData.append("price", this.price);
-      bodyFormData.append("image", this.image);
+      bodyFormData.append("code", this.addProduct["code"]["data"]);
+      bodyFormData.append("name", this.addProduct["name"]["data"]);
+      bodyFormData.append("type", this.addProduct["type"]["data"]);
+      bodyFormData.append("category", this.addProduct["category"]["data"]);
+      bodyFormData.append("unit", this.addProduct["unit"]["data"]);
+      bodyFormData.append("price", this.addProduct["price"]["data"]);
+      bodyFormData.append(
+        "centralCommission",
+        this.addProduct["centralCommission"]["data"]
+      );
+      bodyFormData.append(
+        "partnerCommission",
+        this.addProduct["partnerCommission"]["data"]
+      );
+      bodyFormData.append(
+        "grand_price",
+        this.addProduct["grand_price"]["data"]
+      );
+      bodyFormData.append("image", this.addProduct["image"]["data"]);
 
       return this.$http
         .post(
@@ -239,20 +843,150 @@ export default {
           {
             headers: {
               Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
-              'Content-Type': "multipart/form-data",
+              "Content-Type": "multipart/form-data",
             },
           }
         )
         .then((results) => {
-          console.log(results);
-          //   if (results["data"]["success"]) {
-          //     this.products = results["data"]["data"];
-          //   }
+          if (results["data"]["success"]) {
+            this.$alertify.success(results["data"]["message"]);
+
+            this.items();
+
+            this.addProduct = {
+              code: {
+                data: "",
+                error: false,
+                errorMessage: "",
+              },
+              name: {
+                data: "",
+                error: false,
+                errorMessage: "",
+              },
+              type: {
+                data: "",
+                error: false,
+                errorMessage: "",
+                additionalData: [
+                  "GROUP",
+                  "INVENTORY",
+                  "NON_INVENTORY",
+                  "PRODUCTION_COST",
+                  "SERVICE",
+                  "VARIANT",
+                ],
+              },
+              unit: {
+                data: "",
+                error: false,
+                errorMessage: "",
+                additionalData: [],
+              },
+              category: {
+                data: "",
+                error: false,
+                errorMessage: "",
+                additionalData: [],
+              },
+              price: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              centralCommission: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              partnerCommission: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              grand_price: {
+                data: 0,
+                error: false,
+                errorMessage: "",
+              },
+              image: {
+                data: "",
+                error: false,
+                errorMessage: "",
+              },
+            };
+
+            $("#modal-add-product").modal("hide");
+          }
         })
         .catch((error) => {
           console.log(error.response);
           //   this.$alertify.error(error.response["data"]["message"]);
         });
+    },
+    openEditProduct() {
+      (this.editProduct["code"]["data"] = this.selectedProduct.no),
+        (this.editProduct["name"]["data"] = this.selectedProduct.name),
+        (this.editProduct["type"]["data"] = this.selectedProduct.type),
+        (this.editProduct["unit"]["data"] = this.selectedProduct.unit_id),
+        (this.editProduct["category"]["data"] = this.selectedProduct.category_id),
+        (this.editProduct["price"]["data"] = this.selectedProduct.basic_price),
+        (this.editProduct["centralCommission"]["data"] =
+          this.selectedProduct.centralCommission),
+        (this.editProduct["partnerCommission"]["data"] =
+          this.selectedProduct.partnerCommission),
+        (this.editProduct["grand_price"]["data"] =
+          this.selectedProduct.grand_price),
+        (this.editProduct["image"]["data"] = this.selectedProduct.image);
+    },
+    openModalProduct(id) {
+      this.selectedProduct = this.products.filter(
+        (value) => value.id === id
+      )[0];
+      $("#modal-product").modal("show");
+    },
+    editPriceLabel(event) {
+      var target = event.target || event.srcElement;
+      target.contentEditable = true;
+    },
+    checkNoProductExist() {
+      return this.$http
+        .get(
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/check/${this.addProduct["code"]["data"]}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((results) => {
+          if (!results["data"]["data"]) {
+            this.addProduct["code"]["error"] = false;
+            this.addProduct["code"]["errorMessage"] = "";
+          }
+        })
+        .catch((error) => {
+          if (error.response["data"]["message"]) {
+            this.addProduct["code"]["error"] = true;
+            this.addProduct["code"]["errorMessage"] =
+              error.response["data"]["message"];
+          }
+          // this.$alertify.error(error.response["data"]["message"]);
+        });
+    },
+    getImage(no) {
+      try {
+        let product = this.products.filter((value) => value.no === no)[0];
+
+        let image = JSON.parse(product["image"]);
+
+        return process.env.VUE_APP_BASE_HOST_API + image["thumbURL"];
+      } catch (e) {
+        let image = require(`./../../assets/products/default.jpeg`);
+
+        return image;
+      }
     },
     items() {
       return this.$http
@@ -272,8 +1006,10 @@ export default {
         });
     },
     handleFileUpload() {
-        console.log(this.$refs.image.files[0])
-      this.image = this.$refs.image.files[0];
+      this.addProduct["image"]["data"] = this.$refs.image.files[0];
+    },
+    handleFileUpdate() {
+      this.editProduct["image"]["data"] = this.$refs.imageUpdate.files[0];
     },
     sync() {
       return this.$http
@@ -290,8 +1026,45 @@ export default {
           //   this.$alertify.error(error.response["data"]["data"]["d"]);
         });
     },
-    addProduct() {
+    openModalAddProduct() {
       $("#modal-add-product").modal("show");
+    },
+    getListUnit() {
+      return this.$http
+        .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/list-unit`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+          },
+        })
+        .then((results) => {
+          if (results["data"]["success"]) {
+            let unit = results["data"]["data"]["d"];
+            this.addProduct["unit"]["additionalData"] = unit;
+            this.editProduct["unit"]["additionalData"] = unit;
+          }
+        })
+        .catch((error) => {
+          this.$alertify.error(error.response["data"]["data"]["d"]);
+        });
+    },
+    getCategories() {
+      return this.$http
+        .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/categories`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+          },
+        })
+        .then((results) => {
+          if (results["data"]["success"]) {
+            let categories = results["data"]["data"];
+            this.addProduct["category"]["additionalData"] = categories;
+            this.editProduct["category"]["additionalData"] = categories;
+          }
+        })
+        .catch((error) => {
+            console.log(error);
+          // this.$alertify.error(error.response["data"]["message"]);
+        });
     },
   },
   mounted() {
@@ -299,10 +1072,84 @@ export default {
     $("#btn-sync").tooltip({ boundary: "window" });
     $("#btn-add-product").tooltip({ boundary: "window" });
   },
+  filters: {
+    formatMoney(val) {
+      let formatter = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+      });
+      return formatter.format(val);
+    },
+  },
   created() {
     this.items();
+    this.getListUnit();
+    this.getCategories();
   },
 };
 </script>
 
-<style></style>
+<style scoped>
+.header-category {
+  text-align: center;
+  background-color: white;
+  border-radius: 10px;
+  margin: auto;
+  margin-top: 2%;
+}
+.resource-container {
+  margin-bottom: 3%;
+}
+
+.card-container {
+  min-height: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+}
+.card-img-top {
+  width: 100%;
+  object-fit: cover;
+  height: 155px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.card-img-top:hover {
+  cursor: pointer;
+}
+.card-title-product {
+  white-space: pre-wrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  min-height: 48px;
+  max-height: 48px;
+  -webkit-box-orient: vertical;
+}
+.price {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.button-add-product {
+  position: fixed;
+  bottom: 5%;
+  right: 5%;
+  z-index: 1;
+}
+
+.button-add-product button {
+  width: 45px;
+}
+
+@media only screen and (max-width: 600px) {
+  .modal-bottom {
+    position: fixed;
+    bottom: 0;
+  }
+  .modal-dialog {
+    margin: 0;
+  }
+}
+</style>
