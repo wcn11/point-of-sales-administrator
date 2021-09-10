@@ -173,16 +173,33 @@
                   {{ addProduct["unit"]["errorMessage"] }}
                 </div>
               </div>
-              <div class="form-group">
+
+              <!-- <div class="form-group">
                 <label for="price">harga dasar</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  :class="{ 'is-invalid': addProduct['price']['error'] }"
-                  id="price"
-                  placeholder="20.000,00"
-                  v-model="addProduct['price']['data']"
-                />
+                <div class="w-100 d-flex">
+                  <input
+                    type="text"
+                    class="form-control sync-price"
+                    :class="{
+                      'is-invalid': addProduct['price']['error'],
+                    }"
+                    id="price"
+                    placeholder="20.000,00"
+                    v-model="addProduct['price']['data']"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Sinkron Harga Dasar Dengan Accurate"
+                  />
+                  <button
+                    class="btn btn-primary"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Sinkron Harga Dasar Dengan Accurate"
+                    @click="syncPrice('', 'add')"
+                  >
+                    <i class="fad fa-sync-alt"></i>
+                  </button>
+                </div>
                 <div class="invalid-feedback">
                   {{ addProduct["price"]["errorMessage"] }}
                 </div>
@@ -232,7 +249,7 @@
                 <div class="invalid-feedback">
                   {{ addProduct["grand_price"]["errorMessage"] }}
                 </div>
-              </div>
+              </div> -->
               <div class="form-group">
                 <label for="price">Foto / Gambar</label>
                 <input
@@ -277,11 +294,11 @@
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
               <a
                 class="nav-link active"
-                id="nav-home-tab"
+                id="nav-detail-tab"
                 data-toggle="tab"
-                href="#nav-home"
+                href="#nav-detail"
                 role="tab"
-                aria-controls="nav-home"
+                aria-controls="nav-detail"
                 aria-selected="true"
                 >Detail</a
               >
@@ -296,14 +313,24 @@
                 @click="openEditProduct"
                 >Edit</a
               >
+              <a
+                class="nav-link"
+                id="nav-stok-tab"
+                data-toggle="tab"
+                href="#nav-stok"
+                role="tab"
+                aria-controls="nav-stok"
+                aria-selected="false"
+                >Stok</a
+              >
             </div>
           </nav>
           <div class="tab-content" id="nav-tabContent">
             <div
               class="tab-pane fade show active"
-              id="nav-home"
+              id="nav-detail"
               role="tabpanel"
-              aria-labelledby="nav-home-tab"
+              aria-labelledby="nav-detail-tab"
             >
               <div class="container-fluid">
                 <img
@@ -408,10 +435,14 @@
                         name="category"
                         id="category"
                         class="form-control"
-                        :class="{ 'is-invalid': editProduct['category']['error'] }"
+                        :class="{
+                          'is-invalid': editProduct['category']['error'],
+                        }"
                         v-model="editProduct['category']['data']"
                       >
-                        <option value="" disabled selected>Kategori Barang</option>
+                        <option value="" disabled selected>
+                          Kategori Barang
+                        </option>
                         <option
                           v-for="(category, index) in editProduct['category'][
                             'additionalData'
@@ -419,7 +450,7 @@
                           :key="index"
                           :value="category['id']"
                         >
-                          {{ category['name'] }}
+                          {{ category["name"] }}
                         </option>
                       </select>
                       <div class="invalid-feedback">
@@ -453,14 +484,33 @@
 
                     <div class="form-group">
                       <label for="price">harga dasar</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        :class="{ 'is-invalid': editProduct['price']['error'] }"
-                        id="price"
-                        placeholder="20.000,00"
-                        v-model="editProduct['price']['data']"
-                      />
+                      <div class="w-100 d-flex">
+                        <input
+                          type="text"
+                          class="form-control sync-price"
+                          :class="{
+                            'is-invalid': editProduct['price']['error'],
+                          }"
+                          id="price"
+                          placeholder="20.000,00"
+                          v-model="editProduct['price']['data']"
+                          data-toggle="tooltip"
+                          data-placement="bottom"
+                          title="Sinkron Harga Dasar Dengan Accurate"
+                          readonly
+                        />
+                        <button
+                          class="btn btn-primary"
+                          data-toggle="tooltip"
+                          data-placement="bottom"
+                          title="Sinkron Harga Dasar Dengan Accurate"
+                          @click="
+                            syncPrice(selectedProduct['accurate_product_id'])
+                          "
+                        >
+                          <i class="fad fa-sync-alt"></i>
+                        </button>
+                      </div>
                       <div class="invalid-feedback">
                         {{ editProduct["price"]["errorMessage"] }}
                       </div>
@@ -545,6 +595,55 @@
                   </button>
                 </div>
               </div>
+            </div>
+            <div
+              class="tab-pane fade p-3"
+              id="nav-stok"
+              role="tabpanel"
+              aria-labelledby="nav-stok-tab"
+            >
+              <div
+                class="form-inline"
+                v-for="(stock, index) in selectedProduct['product_partner']"
+                :key="index"
+              >
+                <div class="form-check mb-2 mr-sm-2 w-25 justify-content-start">
+                  <label
+                    class="form-check-label text-left"
+                    for="inlineFormCheck"
+                  >
+                    {{ stock["branch_name"] }}
+                  </label>
+                </div>
+                <div class="input-group mb-2 mr-sm-2">
+                  <input
+                    type="text"
+                    class="form-control"
+                    v-model="stock['stock']"
+                    readonly
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  @click="syncProductStock(selectedProduct['no'], stock, index)"
+                  class="btn btn-primary mb-2"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Sinkron Dengan Accurate"
+                >
+                  <i class="fad fa-sync-alt"></i>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary mb-2 w-100"
+                @click="updateStock"
+              >
+                <i class="fad fa-sync-alt"></i>
+                update
+              </button>
             </div>
           </div>
 
@@ -705,8 +804,8 @@ export default {
           errorMessage: "",
         },
       },
-
       selectedProduct: {},
+      userStocks: [],
     };
   },
   methods: {
@@ -719,9 +818,18 @@ export default {
       bodyFormData.append("category", this.editProduct["category"]["data"]);
       bodyFormData.append("unit", this.editProduct["unit"]["data"]);
       bodyFormData.append("price", this.editProduct["price"]["data"]);
-      bodyFormData.append("centralCommission", this.editProduct["centralCommission"]["data"]);
-      bodyFormData.append("partnerCommission", this.editProduct["partnerCommission"]["data"]);
-      bodyFormData.append("grand_price", this.editProduct["grand_price"]["data"]);
+      bodyFormData.append(
+        "centralCommission",
+        this.editProduct["centralCommission"]["data"]
+      );
+      bodyFormData.append(
+        "partnerCommission",
+        this.editProduct["partnerCommission"]["data"]
+      );
+      bodyFormData.append(
+        "grand_price",
+        this.editProduct["grand_price"]["data"]
+      );
       bodyFormData.append("image", this.editProduct["image"]["data"]);
 
       return this.$http
@@ -807,7 +915,7 @@ export default {
           }
         })
         .catch((error) => {
-          if(error.response.data.success)
+          if (error.response.data.success)
             this.$alertify.error(error.response["data"]["message"]);
         });
     },
@@ -819,19 +927,19 @@ export default {
       bodyFormData.append("type", this.addProduct["type"]["data"]);
       bodyFormData.append("category", this.addProduct["category"]["data"]);
       bodyFormData.append("unit", this.addProduct["unit"]["data"]);
-      bodyFormData.append("price", this.addProduct["price"]["data"]);
-      bodyFormData.append(
-        "centralCommission",
-        this.addProduct["centralCommission"]["data"]
-      );
-      bodyFormData.append(
-        "partnerCommission",
-        this.addProduct["partnerCommission"]["data"]
-      );
-      bodyFormData.append(
-        "grand_price",
-        this.addProduct["grand_price"]["data"]
-      );
+      // bodyFormData.append("price", this.addProduct["price"]["data"]);
+      // bodyFormData.append(
+      //   "centralCommission",
+      //   this.addProduct["centralCommission"]["data"]
+      // );
+      // bodyFormData.append(
+      //   "partnerCommission",
+      //   this.addProduct["partnerCommission"]["data"]
+      // );
+      // bodyFormData.append(
+      //   "grand_price",
+      //   this.addProduct["grand_price"]["data"]
+      // );
       bodyFormData.append("image", this.addProduct["image"]["data"]);
 
       return this.$http
@@ -881,13 +989,13 @@ export default {
                 data: "",
                 error: false,
                 errorMessage: "",
-                additionalData: [],
+                additionalData: this.addProduct["unit"]["additionalData"],
               },
               category: {
                 data: "",
                 error: false,
                 errorMessage: "",
-                additionalData: [],
+                additionalData: this.addProduct["category"]["additionalData"],
               },
               price: {
                 data: 0,
@@ -929,7 +1037,8 @@ export default {
         (this.editProduct["name"]["data"] = this.selectedProduct.name),
         (this.editProduct["type"]["data"] = this.selectedProduct.type),
         (this.editProduct["unit"]["data"] = this.selectedProduct.unit_id),
-        (this.editProduct["category"]["data"] = this.selectedProduct.category_id),
+        (this.editProduct["category"]["data"] =
+          this.selectedProduct.category_id),
         (this.editProduct["price"]["data"] = this.selectedProduct.basic_price),
         (this.editProduct["centralCommission"]["data"] =
           this.selectedProduct.centralCommission),
@@ -940,10 +1049,15 @@ export default {
         (this.editProduct["image"]["data"] = this.selectedProduct.image);
     },
     openModalProduct(id) {
-      this.selectedProduct = this.products.filter(
-        (value) => value.id === id
-      )[0];
+      this.selectedProduct = this.products.filter((value, index) => {
+        if (value.id === id) {
+          value["index"] = index;
+          return value;
+        }
+      })[0];
       $("#modal-product").modal("show");
+      $("#nav-detail-tab").tab("show");
+      $("#nav-detail").tab("show");
     },
     editPriceLabel(event) {
       var target = event.target || event.srcElement;
@@ -1026,7 +1140,88 @@ export default {
           //   this.$alertify.error(error.response["data"]["data"]["d"]);
         });
     },
+    syncProductStock(no, productPartner, index) {
+      return this.$http
+        .get(
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/sync/stock/${no}/branch/${productPartner["branch_name"]}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+            },
+          }
+        )
+        .then((results) => {
+          if (results["data"]["data"]["s"]) {
+            // console.log((this.products[this.selectedProduct['index']]["product_partner"][index]["stock"] = results["data"]["data"]['d']['availableStock']));
+
+            this.selectedProduct["product_partner"][index]["stock"] =
+              results["data"]["data"]["d"]["availableStock"];
+          } else {
+            this.$alertify.error(results["data"]["data"]["d"]);
+          }
+        })
+        .catch((error) => {
+          this.$alertify.error(error.response["data"]["message"]);
+        });
+    },
+    syncPrice(id) {
+
+      if(id === "" || id === undefined) {
+        this.$alertify.warning("Harap isi UPC / Barcode")
+        return 
+      }
+      return this.$http
+        .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/sync/${id}/price`, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+          },
+        })
+        .then((results) => {
+          if (results["data"]["success"]) {
+            if (results["data"]["data"]["s"]) {
+              this.selectedProduct["basic_price"] = parseInt(
+                results["data"]["data"]["d"]["balanceUnitCost"]
+              );
+              this.editProduct["price"]["data"] = parseInt(
+                results["data"]["data"]["d"]["balanceUnitCost"]
+              );
+              this.$alertify.success("Berhasil mengambil data");
+              return;
+            } else {
+              results["data"]["data"]["d"].map((message) => {
+                this.$alertify.warning(message);
+              });
+            }
+          }
+        })
+        .catch((error) => {
+          this.$alertify.error(error.response["data"]["message"]);
+        });
+    },
+    updateStock() {
+      return this.$http
+        .post(
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/stock/update`,
+          {
+            product: this.selectedProduct,
+          },
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+            },
+          }
+        )
+        .then((results) => {
+          if (results["data"]["success"]) {
+            this.$alertify.success(results["data"]["message"]);
+          }
+        })
+        .catch((error) => {
+          this.$alertify.error(error.response["data"]["message"]);
+        });
+    },
     openModalAddProduct() {
+      this.addProduct["price"]["data"] = 0
       $("#modal-add-product").modal("show");
     },
     getListUnit() {
@@ -1062,8 +1257,7 @@ export default {
           }
         })
         .catch((error) => {
-            console.log(error);
-          // this.$alertify.error(error.response["data"]["message"]);
+          this.$alertify.error(error.response["data"]["message"]);
         });
     },
   },
@@ -1141,6 +1335,10 @@ export default {
 
 .button-add-product button {
   width: 45px;
+}
+
+.sync-price {
+  margin-right: 10px;
 }
 
 @media only screen and (max-width: 600px) {
