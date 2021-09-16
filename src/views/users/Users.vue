@@ -87,6 +87,7 @@
       <table class="table table-borderless table-hover">
         <thead>
           <tr class="text-nowrap">
+            <th>ID</th>
             <th>Nama</th>
             <th>Cabang</th>
             <th>Gudang</th>
@@ -98,7 +99,7 @@
         <tbody>
           <tr v-for="user in users" :key="user.id" class="text-nowrap">
             <td>
-              {{ user["name"] }}
+              {{ user["id"] }}
             </td>
             <td>
               {{ user["branch_name"] }}
