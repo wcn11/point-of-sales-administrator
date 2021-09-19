@@ -9,7 +9,7 @@
         data-toggle="tooltip"
         data-placement="bottom"
         title="Sinkron Dengan Accurate"
-        @click="sync"
+        disabled
       >
         <i class="fad fa-sync-alt"></i>
       </button>
@@ -386,6 +386,7 @@
                         id="code"
                         placeholder="cth: 0040001"
                         v-model="editProduct['code']['data']"
+                        disabled="disabled"
                       />
                       <div class="invalid-feedback">
                         {{ editProduct["code"]["errorMessage"] }}
@@ -527,6 +528,7 @@
                         id="centralCommission"
                         placeholder="Rp 1.000,00"
                         v-model="editProduct['centralCommission']['data']"
+                        @keyup="calculatePrice"
                       />
                       <div class="invalid-feedback">
                         {{ editProduct["centralCommission"]["errorMessage"] }}
@@ -542,8 +544,9 @@
                             editProduct['partnerCommission']['error'],
                         }"
                         id="partnerCommission"
-                        placeholder="Rp 4.000,00"
-                        v-model="editProduct['partnerCommission']['data']"
+                        placeholder="0000"
+                        v-model.number="editProduct['partnerCommission']['data']"
+                        @keyup="calculatePrice"
                       />
                       <div class="invalid-feedback">
                         {{ editProduct["partnerCommission"]["errorMessage"] }}
@@ -558,7 +561,7 @@
                           'is-invalid': editProduct['grand_price']['error'],
                         }"
                         id="grand_price"
-                        placeholder="Rp 25.000,00"
+                        placeholder="0000"
                         v-model="editProduct['grand_price']['data']"
                       />
                       <div class="invalid-feedback">
@@ -810,6 +813,7 @@ export default {
   },
   methods: {
     updateProduct() {
+      this.$root.loading = true;
       var bodyFormData = new FormData();
 
       bodyFormData.append("code", this.editProduct["code"]["data"]);
@@ -818,6 +822,12 @@ export default {
       bodyFormData.append("category", this.editProduct["category"]["data"]);
       bodyFormData.append("unit", this.editProduct["unit"]["data"]);
       bodyFormData.append("price", this.editProduct["price"]["data"]);
+
+      let category_name = this.editProduct["category"]["additionalData"].filter(
+        (category) => category.id === this.editProduct["category"]["data"]
+      )[0]["name"];
+
+      bodyFormData.append("category_name", category_name);
       bodyFormData.append(
         "centralCommission",
         this.editProduct["centralCommission"]["data"]
@@ -848,7 +858,7 @@ export default {
         .then((results) => {
           if (results["data"]["success"]) {
             this.$alertify.success(results["data"]["message"]);
-            this.items();
+            this.getProducts();
             this.addProduct = {
               code: {
                 data: "",
@@ -877,13 +887,11 @@ export default {
                 data: "",
                 error: false,
                 errorMessage: "",
-                additionalData: [],
               },
               category: {
                 data: "",
                 error: false,
                 errorMessage: "",
-                additionalData: [],
               },
               price: {
                 data: 0,
@@ -912,6 +920,7 @@ export default {
               },
             };
             $("#modal-product").modal("hide");
+            this.$root.loading = false;
           }
         })
         .catch((error) => {
@@ -920,6 +929,7 @@ export default {
         });
     },
     saveProduct() {
+      this.$root.loading = true;
       var bodyFormData = new FormData();
 
       bodyFormData.append("code", this.addProduct["code"]["data"]);
@@ -927,19 +937,13 @@ export default {
       bodyFormData.append("type", this.addProduct["type"]["data"]);
       bodyFormData.append("category", this.addProduct["category"]["data"]);
       bodyFormData.append("unit", this.addProduct["unit"]["data"]);
-      // bodyFormData.append("price", this.addProduct["price"]["data"]);
-      // bodyFormData.append(
-      //   "centralCommission",
-      //   this.addProduct["centralCommission"]["data"]
-      // );
-      // bodyFormData.append(
-      //   "partnerCommission",
-      //   this.addProduct["partnerCommission"]["data"]
-      // );
-      // bodyFormData.append(
-      //   "grand_price",
-      //   this.addProduct["grand_price"]["data"]
-      // );
+
+      let category_name = this.addProduct["category"]["additionalData"].filter(
+        (category) => category.id === this.addProduct["category"]["data"]
+      )[0]["name"];
+
+      bodyFormData.append("category_name", category_name);
+
       bodyFormData.append("image", this.addProduct["image"]["data"]);
 
       return this.$http
@@ -959,7 +963,7 @@ export default {
           if (results["data"]["success"]) {
             this.$alertify.success(results["data"]["message"]);
 
-            this.items();
+            this.getProducts();
 
             this.addProduct = {
               code: {
@@ -1025,6 +1029,7 @@ export default {
             };
 
             $("#modal-add-product").modal("hide");
+            this.$root.loading = false;
           }
         })
         .catch((error) => {
@@ -1049,6 +1054,7 @@ export default {
         (this.editProduct["image"]["data"] = this.selectedProduct.image);
     },
     openModalProduct(id) {
+      this.$root.loading = true;
       this.selectedProduct = this.products.filter((value, index) => {
         if (value.id === id) {
           value["index"] = index;
@@ -1058,12 +1064,14 @@ export default {
       $("#modal-product").modal("show");
       $("#nav-detail-tab").tab("show");
       $("#nav-detail").tab("show");
+      this.$root.loading = false;
     },
     editPriceLabel(event) {
       var target = event.target || event.srcElement;
       target.contentEditable = true;
     },
     checkNoProductExist() {
+      this.$root.loading = true;
       return this.$http
         .get(
           `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/check/${this.addProduct["code"]["data"]}`,
@@ -1078,6 +1086,7 @@ export default {
           if (!results["data"]["data"]) {
             this.addProduct["code"]["error"] = false;
             this.addProduct["code"]["errorMessage"] = "";
+            this.$root.loading = false;
           }
         })
         .catch((error) => {
@@ -1102,17 +1111,22 @@ export default {
         return image;
       }
     },
-    items() {
+    getProducts() {
+      this.$root.loading = true;
       return this.$http
-        .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
-            "Content-Type": "multipart/form-data",
-          },
-        })
+        .get(
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/category/${this.$route.params.categoryId}/products`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
         .then((results) => {
           if (results["data"]["success"]) {
             this.products = results["data"]["data"];
+            this.$root.loading = false;
           }
         })
         .catch((error) => {
@@ -1125,25 +1139,11 @@ export default {
     handleFileUpdate() {
       this.editProduct["image"]["data"] = this.$refs.imageUpdate.files[0];
     },
-    sync() {
-      return this.$http
-        .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/sync`, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
-          },
-        })
-        .then((results) => {
-          console.log(results);
-        })
-        .catch((error) => {
-          console.log(error);
-          //   this.$alertify.error(error.response["data"]["data"]["d"]);
-        });
-    },
     syncProductStock(no, productPartner, index) {
+      this.$root.loading = true;
       return this.$http
         .get(
-          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/sync/stock/${no}/branch/${productPartner["branch_name"]}`,
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/sync/stock/${no}/user/${productPartner["user_id"]}`,
           {
             headers: {
               Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
@@ -1152,10 +1152,10 @@ export default {
         )
         .then((results) => {
           if (results["data"]["data"]["s"]) {
-            // console.log((this.products[this.selectedProduct['index']]["product_partner"][index]["stock"] = results["data"]["data"]['d']['availableStock']));
-
             this.selectedProduct["product_partner"][index]["stock"] =
-              results["data"]["data"]["d"]["availableStock"];
+              Math.floor(results["data"]["data"]["d"]["availableStock"]);
+            this.$alertify.success("Berhasil sinkron");
+            this.$root.loading = false;
           } else {
             this.$alertify.error(results["data"]["data"]["d"]);
           }
@@ -1164,11 +1164,16 @@ export default {
           this.$alertify.error(error.response["data"]["message"]);
         });
     },
-    syncPrice(id) {
+    calculatePrice(){
+      this.editProduct['grand_price']['data'] = parseInt(this.editProduct['price']['data']) + parseInt(this.editProduct['centralCommission']['data']) +  (this.editProduct['partnerCommission']['data'])
 
-      if(id === "" || id === undefined) {
-        this.$alertify.warning("Harap isi UPC / Barcode")
-        return 
+    },
+    syncPrice(id) {
+      this.$root.loading = true;
+      if (id === "" || id === undefined) {
+        this.$alertify.warning("Harap isi UPC / Barcode");
+        this.$root.loading = false;
+        return;
       }
       return this.$http
         .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/sync/${id}/price`, {
@@ -1185,11 +1190,15 @@ export default {
               this.editProduct["price"]["data"] = parseInt(
                 results["data"]["data"]["d"]["balanceUnitCost"]
               );
-              this.$alertify.success("Berhasil mengambil data");
+              this.$alertify.success("Berhasil sinkron harga");
+              this.$root.loading = false;
+              // let price = results["data"]["data"]["d"]["balanceUnitCost"];
+              this.calculatePrice()
               return;
             } else {
               results["data"]["data"]["d"].map((message) => {
                 this.$alertify.warning(message);
+                this.$root.loading = false;
               });
             }
           }
@@ -1199,6 +1208,7 @@ export default {
         });
     },
     updateStock() {
+      this.$root.loading = true;
       return this.$http
         .post(
           `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/stock/update`,
@@ -1214,17 +1224,20 @@ export default {
         .then((results) => {
           if (results["data"]["success"]) {
             this.$alertify.success(results["data"]["message"]);
+            this.$root.loading = false;
           }
         })
         .catch((error) => {
           this.$alertify.error(error.response["data"]["message"]);
+          this.$root.loading = false;
         });
     },
     openModalAddProduct() {
-      this.addProduct["price"]["data"] = 0
+      this.addProduct["price"]["data"] = 0;
       $("#modal-add-product").modal("show");
     },
     getListUnit() {
+      this.$root.loading = true;
       return this.$http
         .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/list-unit`, {
           headers: {
@@ -1236,13 +1249,16 @@ export default {
             let unit = results["data"]["data"]["d"];
             this.addProduct["unit"]["additionalData"] = unit;
             this.editProduct["unit"]["additionalData"] = unit;
+            this.$root.loading = false;
           }
         })
         .catch((error) => {
           this.$alertify.error(error.response["data"]["data"]["d"]);
+          this.$root.loading = false;
         });
     },
     getCategories() {
+      this.$root.loading = true;
       return this.$http
         .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/categories`, {
           headers: {
@@ -1254,10 +1270,12 @@ export default {
             let categories = results["data"]["data"];
             this.addProduct["category"]["additionalData"] = categories;
             this.editProduct["category"]["additionalData"] = categories;
+            this.$root.loading = false;
           }
         })
         .catch((error) => {
           this.$alertify.error(error.response["data"]["message"]);
+          this.$root.loading = false;
         });
     },
   },
@@ -1276,7 +1294,7 @@ export default {
     },
   },
   created() {
-    this.items();
+    this.getProducts();
     this.getListUnit();
     this.getCategories();
   },

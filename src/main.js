@@ -44,5 +44,8 @@ Vue.config.productionTip = false
 new Vue({
   store,
   router,
+  data: {
+    loading: false,
+  },
   render: h => h(App)
 }).$mount('#app')

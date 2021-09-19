@@ -5,18 +5,20 @@
         <h3>Konfigurasi Admin</h3>
       </header>
 
-      <div class="row flexbox conf-container overflow-hidden">
+      <!-- <div class="row flexbox conf-container overflow-hidden">
         <div class="col-sm-6 card-col">
           <router-link :to="{ name: 'items' }" class="text-decoration-none">
             <div class="card bg-success card card-container">
-              <p class="font-weight-bold">Jumlah Barang</p>
-              <span>56 Item</span>
+              <p class="font-weight-bold">Jumlah Barang 
+            <span class="badge badge-danger">segera</span></p> 
+              <span>xxx</span>
             </div>
           </router-link>
         </div>
         <div class="col-md-6 card-col">
           <div class="card bg-info card-container">
-            <p class="font-weight-bold">Update Harga Terakhir</p>
+            <p class="font-weight-bold">Update Harga Terakhir 
+            <span class="badge badge-danger">segera</span></p>
             <span>20:30, 2 September 2021</span>
           </div>
         </div>
@@ -32,11 +34,11 @@
             <span>56 Item</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <div class="row">
-      <div class="col-md-10">
+      <div class="col-md-12">
         <div class="m-auto ">
           <button
             class="btn btn-info mr-1"
@@ -44,10 +46,13 @@
             data-toggle="tooltip"
             data-placement="bottom"
             title="Update Masal Seluruh Harga Produk"
+            disabled
           >
             <i class="fad fa-usd-circle"></i> Mass Update Harga
+            <span class="badge badge-danger">segera</span>
           </button>
-          <button
+          <router-link
+          :to="{name: 'UserAdd'}"
             class="btn btn-warning mr-1"
             id="btn-update-mass-price"
             data-toggle="tooltip"
@@ -55,8 +60,8 @@
             title="Update Masal Seluruh Harga Produk"
           >
             <i class="fad fa-usd-circle"></i> tambah mitra
-          </button>
-          <router-link :to="{ name: 'items' }" class="text-decoration-none btn btn-dark"
+          </router-link>
+          <router-link :to="{ name: 'category' }" class="text-decoration-none btn btn-dark"
             id="btn-update-mass-price"
             data-toggle="tooltip"
             data-placement="bottom"
@@ -66,7 +71,7 @@
           </router-link>
         </div>
       </div>
-      <div class="col-md-2">
+      <!-- <div class="col-md-2">
         <div>
           <button
             class="btn btn-success rounded-circle"
@@ -79,10 +84,8 @@
             <i class="fad fa-sync-alt"></i>
           </button>
         </div>
-      </div>
+      </div> -->
     </div>
-
-    <a href="/user/add">Tambah Mitra</a>
     <div class="table-responsive">
       <table class="table table-borderless table-hover">
         <thead>
@@ -100,6 +103,9 @@
           <tr v-for="user in users" :key="user.id" class="text-nowrap">
             <td>
               {{ user["id"] }}
+            </td>
+            <td>
+              {{ user["name"] }}
             </td>
             <td>
               {{ user["branch_name"] }}
@@ -160,7 +166,7 @@
 // import $ from 'jquery'
 
 export default {
-  name: "Home",
+  name: "Users",
   components: {},
   data() {
     return {

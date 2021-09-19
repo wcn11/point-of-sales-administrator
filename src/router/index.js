@@ -53,13 +53,20 @@ const routes = [{
       requiresAuth: true
     }
   }, {
-    path: '/items',
-    name: 'items',
-    component: () => import( /* webpackChunkName: "about" */ '../views/item/Item.vue'),
-    meta: {
-      requiresAuth: true
-    }
-  },
+    path: '/kategori',
+      name: 'category',
+      component: () => import( /* webpackChunkName: "about" */ '../views/category/category.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    }, {
+      path: '/produk/:categoryId',
+      name: 'products',
+      component: () => import( /* webpackChunkName: "about" */ '../views/item/Item.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
 ]
 
 const router = new VueRouter({
