@@ -9,12 +9,11 @@ Vue.prototype.$http = axios;
 
 window.$ = window.jQuery = require("jquery");
 
+import bootstrap from 'bootstrap'
+require('./plugins/css/bootstrap.min.css')
+
 import bootstrapSwitch from "bootstrap-switch"
 Vue.use(bootstrapSwitch)
-
-require('bootstrap')
-require("./plugins/css/bootstrap.min.css")
-
 import VueMeta from 'vue-meta'
 
 import VueDebounce from 'vue-debounce'
