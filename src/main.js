@@ -7,7 +7,9 @@ import axios from 'axios'
 
 Vue.prototype.$http = axios;
 
-window.$ = window.jQuery = require("jquery");
+import jquery from 'jquery'
+window.jQuery = jquery
+window.$ = window.jQuery
 
 import bootstrap from 'bootstrap'
 require('./plugins/css/bootstrap.min.css')
