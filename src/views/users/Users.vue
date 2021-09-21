@@ -4,37 +4,6 @@
       <header class="text-center">
         <h3>Konfigurasi Admin</h3>
       </header>
-
-      <!-- <div class="row flexbox conf-container overflow-hidden">
-        <div class="col-sm-6 card-col">
-          <router-link :to="{ name: 'items' }" class="text-decoration-none">
-            <div class="card bg-success card card-container">
-              <p class="font-weight-bold">Jumlah Barang 
-            <span class="badge badge-danger">segera</span></p> 
-              <span>xxx</span>
-            </div>
-          </router-link>
-        </div>
-        <div class="col-md-6 card-col">
-          <div class="card bg-info card-container">
-            <p class="font-weight-bold">Update Harga Terakhir 
-            <span class="badge badge-danger">segera</span></p>
-            <span>20:30, 2 September 2021</span>
-          </div>
-        </div>
-        <div class="col-md-6 card-col">
-          <div class="card bg-primary card-container">
-            <p class="font-weight-bold">Jumlah Barang</p>
-            <span>56 Item</span>
-          </div>
-        </div>
-        <div class="col-md-6 card-col">
-          <div class="card bg-warning card-container">
-            <p class="font-weight-bold">Jumlah Barang</p>
-            <span>56 Item</span>
-          </div>
-        </div>
-      </div> -->
     </div>
 
     <div class="row">

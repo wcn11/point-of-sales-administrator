@@ -157,7 +157,7 @@ export default {
   },
 };
 </script>
-<style scoped lang="css">
+<style scoped>
 .header-category {
   text-align: center;
   background-color: white;
