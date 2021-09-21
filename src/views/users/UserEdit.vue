@@ -34,6 +34,34 @@
       </div>
 
       <div class="form-group">
+        <label for="inputAddress">Provinsi</label>
+        <select class="form-control" id="inputCabang" v-model="selectedProvince" @change="getCities()">
+          <option value="" disabled selected>Pilih Provinsi</option>
+          <option
+            v-for="(province, index) in provinces"
+            :key="index"
+            :value="province"
+          >
+            {{ province["name"] }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="inputAddress">Kota</label>
+        <select class="form-control" id="inputCabang" v-model="selectedCity">
+          <option value="" disabled selected>Pilih Kota</option>
+          <option
+            v-for="(city, index) in cities"
+            :key="index"
+            :value="city"
+          >
+            {{ city["name"] }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label for="inputAddress">Cabang</label>
         <select
           class="form-control"
@@ -60,7 +88,7 @@
           </option>
         </select>
       </div>
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="inputCustomerCategories">Kategori Pelanggan</label>
         <select
           class="form-control"
@@ -76,7 +104,7 @@
             {{ cc["name"] }}
           </option>
         </select>
-      </div>
+      </div> -->
       <div class="form-group">
         <label for="inputCustomerDefault">Default Pelanggan</label>
         <select
@@ -94,7 +122,7 @@
           </option>
         </select>
       </div>
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="inputGlAccount">Akun Perkiraan</label>
         <select
           class="form-control"
@@ -110,8 +138,8 @@
             {{ glaccount["name"] }}
           </option>
         </select>
-      </div>
-      <div class="form-group">
+      </div> -->
+      <!-- <div class="form-group">
         <label for="commission">Komisi Pusat</label>
         <input
           name="commission"
@@ -128,7 +156,7 @@
           class="form-control"
           v-model.number="partnerCommission"
         />
-      </div>
+      </div> -->
 
       <div class="custom-control custom-switch">
         <p>Aktifkan Pengguna</p>
@@ -179,6 +207,8 @@ export default {
   data() {
     return {
       user: [],
+      provinces: [],
+      cities: [],
       branches: [],
       warehouses: [],
       customerCategories: [],
@@ -189,6 +219,8 @@ export default {
       name: "",
       email: "",
       password: "",
+      selectedProvince: {},
+      selectedCity: '',
       selectedBranch: {},
       selectedWarehouse: {},
       selectedCustomerCategory: {},
@@ -232,8 +264,52 @@ export default {
           });
       }
     },
+    getProvince() {
+      if(this.user){
+        return this.$http
+          .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/provinces-lists`, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+            },
+          })
+          .then((results) => {
+            if (results["data"]["success"]) {
+              this.provinces = results["data"]["data"];
+
+              // console.log(this.user['province_name'])
+
+              this.selectedProvince['id'] = this.user['province_id']
+              this.selectedProvince['name'] = this.user['province_name']
+            }
+          })
+          .catch((error) => {
+            this.$alertify.error(error.response["data"]["data"]["d"]);
+          });
+      }
+      
+    },
+    getCities() {
+      // if(this.selectedProvince['id']){
+        return this.$http
+          .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/cities-lists/${this.selectedProvince['id']}`, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+            },
+          })
+          .then((results) => {
+            if (results["data"]["success"]) {
+              if (results["data"]["data"]) {
+                this.cities = results["data"]["data"];
+              }
+            }
+          })
+          .catch((error) => {
+            this.$alertify.error(error.response["data"]["message"]);
+          });
+      // }
+    },
     getListBranch() {
-      if (this.branches.length <= 0) {
+      
         return this.$http
           .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/branches-lists`, {
             headers: {
@@ -242,24 +318,26 @@ export default {
           })
           .then((results) => {
             if (results["data"]["success"]) {
-              this.branches = results["data"]["data"];
+              this.branches = results["data"]["data"]['d'];
 
-              let user = {
-                id: this.user["branch_id"],
-                name: this.user["branch_name"],
-              };
+              this.selectedBranch['id'] = this.user['province_id']
+              this.selectedBranch['name'] = this.user['province_name']
 
-              this.branches.push(user);
-              this.selectedBranch = user;
+              // let user = {
+              //   id: this.user["branch_id"],
+              //   name: this.user["branch_name"],
+              // };
+
+              // this.branches.push(user);
+              // this.selectedBranch = user;
             }
           })
           .catch((error) => {
             this.$alertify.error(error.response["data"]["data"]["d"]);
           });
-      }
+      
     },
     getListWarehouse() {
-      if (this.warehouses.length <= 0) {
         return this.$http
           .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/warehouse-lists`, {
             headers: {
@@ -268,53 +346,18 @@ export default {
           })
           .then((results) => {
             if (results["data"]["success"]) {
-              this.warehouses = results["data"]["data"];
+              this.warehouses = results["data"]["data"]['d'];
 
-              let user = {
-                id: this.user["warehouse_id"],
-                name: this.user["warehouse_name"],
-              };
+              this.selectedWarehouse['id'] = this.user['warehouse_id']
+              this.selectedWarehouse['name'] = this.user['warehouse_name']
 
-              this.warehouses.push(user);
-              this.selectedWarehouse = user;
             }
           })
           .catch((error) => {
             this.$alertify.error(error.response["data"]["data"]["d"]);
           });
-      }
-    },
-    getListCustomersCategory() {
-      if (this.customerCategories.length <= 0) {
-        return this.$http
-          .get(
-            `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/customer-category-lists`,
-            {
-              headers: {
-                Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
-              },
-            }
-          )
-          .then((results) => {
-            if (results["data"]["success"]) {
-              this.customerCategories = results["data"]["data"];
-
-              let user = {
-                id: this.user["customer_category_id"],
-                name: this.user["customer_category_name"],
-              };
-
-              this.customerCategories.push(user);
-              this.selectedCustomerCategory = user;
-            }
-          })
-          .catch((error) => {
-            this.$alertify.error(error.response["data"]["message"]);
-          });
-      }
     },
     getListCustomersDefault() {
-      if (this.customersDefault.length <= 0) {
         return this.$http
           .get(
             `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/customer-default-lists`,
@@ -326,44 +369,13 @@ export default {
           )
           .then((results) => {
             if (results["data"]["success"]) {
-              this.customersDefault = results["data"]["data"];
-
-              let user = {
-                id: this.user["customer_no_default"],
-                name: this.user["customer_name_default"],
-              };
-
-              this.customersDefault.push(user);
-              this.selectedCustomerDefault = user;
+              this.customersDefault = results["data"]["data"]['d'];
             }
           })
           .catch((error) => {
             this.$alertify.error(error.response["data"]["message"]);
           });
-      }
-    },
-    getGlaccount() {
-      if (this.glaccounts.length <= 0) {
-        return this.$http
-          .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/glaccount-lists`, {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
-            },
-          })
-          .then((results) => {
-            if (results["data"]["success"]) {
-              this.glaccounts = results["data"]["data"];
-
-              this.selectedGlAccount['id'] = this.user["glaccount_id"]
-              this.selectedGlAccount['no'] = this.user["glaccount_no"]
-              this.selectedGlAccount['name'] = this.user["glaccount_name"]
-
-            }
-          })
-          .catch((error) => {
-            this.$alertify.error(error.response["data"]["message"]);
-          });
-      }
+      
     },
     saveUser() {
       return this.$http
@@ -372,6 +384,8 @@ export default {
           {
             name: this.name,
             email: this.email,
+            province: this.selectedProvince,
+            city: this.selectedCity,
             selectedBranch: this.selectedBranch,
             selectedWarehouse: this.selectedWarehouse,
             selectedCustomerCategory: this.selectedCustomerCategory,
@@ -409,12 +423,12 @@ export default {
     },
   },
   created() {
+    this.getProvince()
+    this.getCities()
     this.getUser();
     this.getListBranch();
     this.getListWarehouse();
-    this.getListCustomersCategory();
     this.getListCustomersDefault();
-    this.getGlaccount();
   },
 };
 </script>

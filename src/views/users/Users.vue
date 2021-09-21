@@ -61,13 +61,21 @@
           >
             <i class="fad fa-usd-circle"></i> tambah mitra
           </router-link>
-          <router-link :to="{ name: 'category' }" class="text-decoration-none btn btn-dark"
+          <router-link :to="{ name: 'category' }" class="text-decoration-none btn btn-dark mr-1"
             id="btn-update-mass-price"
             data-toggle="tooltip"
             data-placement="bottom"
             title="Update Masal Seluruh Harga Produk"
           >
             <i class="fad fa-box-usd"></i> Pengaturan Produk
+          </router-link>
+          <router-link :to="{ name: 'category' }" class="text-decoration-none btn btn-danger mr-1"
+            id="btn-update-mass-price"
+            data-toggle="tooltip"
+            data-placement="bottom"
+            title="Stok Yang Segera Harus Di Update"
+          >
+            <i class="fad fa-box-usd"></i> Stok Kurang (2)
           </router-link>
         </div>
       </div>

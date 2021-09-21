@@ -40,7 +40,7 @@ require('./../../assets/css/login.css')
 export default {
     name: "login.vue",
     metaInfo: {
-      titleTemplate: 'Masuk',
+      titleTemplate: 'Masuk - POS Admin Beliayam.com',
       htmlAttrs: {
         lang: 'en',
         amp: true

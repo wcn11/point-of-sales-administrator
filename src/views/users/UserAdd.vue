@@ -34,6 +34,34 @@
       </div>
 
       <div class="form-group">
+        <label for="inputAddress">Provinsi</label>
+        <select class="form-control" id="inputCabang" v-model="selectedProvince" @change="getCities()">
+          <option value="" disabled selected>Pilih Provinsi</option>
+          <option
+            v-for="(province, index) in provinces"
+            :key="index"
+            :value="province"
+          >
+            {{ province["name"] }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="inputAddress">Kota</label>
+        <select class="form-control" id="inputCabang" v-model="selectedCity">
+          <option value="" disabled selected>Pilih Kota</option>
+          <option
+            v-for="(city, index) in cities"
+            :key="index"
+            :value="city"
+          >
+            {{ city["name"] }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label for="inputAddress">Cabang</label>
         <select class="form-control" id="inputCabang" v-model="selectedBranch">
           <option value="" disabled selected>Pilih Cabang</option>
@@ -165,15 +193,17 @@ export default {
   data() {
     return {
       user: [],
+      provinces: [],
+      cities: [],
       warehouses: [],
-      // customerCategories: [],
       customersDefault: [],
-      // glaccounts: [],
       branches: [],
 
       name: "",
       email: "",
       password: "",
+      selectedProvince: '',
+      selectedCity: '',
       selectedBranch: "",
       selectedWarehouse: "",
       // selectedCustomerCategory: "",
@@ -184,6 +214,42 @@ export default {
     };
   },
   methods: {
+    getProvince() {
+        return this.$http
+          .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/provinces-lists`, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+            },
+          })
+          .then((results) => {
+            if (results["data"]["success"]) {
+              if (results["data"]["data"]) {
+                this.provinces = results["data"]["data"];
+              }
+            }
+          })
+          .catch((error) => {
+            this.$alertify.error(error.response["data"]["message"]);
+          });
+    },
+    getCities() {
+        return this.$http
+          .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/cities-lists/${this.selectedProvince['id']}`, {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+            },
+          })
+          .then((results) => {
+            if (results["data"]["success"]) {
+              if (results["data"]["data"]) {
+                this.cities = results["data"]["data"];
+              }
+            }
+          })
+          .catch((error) => {
+            this.$alertify.error(error.response["data"]["message"]);
+          });
+    },
     getBranches() {
         return this.$http
           .get(`${process.env.VUE_APP_BASE_HOST_API_ADMIN}/branches-lists`, {
@@ -254,9 +320,6 @@ export default {
                 });
               }
             }
-            // if (results["data"]["success"]) {
-            //   this.customersDefault = results["data"]["data"];
-            // }
           })
           .catch((error) => {
             this.$alertify.error(error.response["data"]["message"]);
@@ -271,6 +334,8 @@ export default {
             name: this.name,
             email: this.email,
             password: this.password,
+            selectedProvince: this.selectedProvince,
+            selectedCity: this.selectedCity,
             selectedBranch: this.selectedBranch,
             selectedWarehouse: this.selectedWarehouse,
             selectedCustomerDefault: this.selectedCustomerDefault,
@@ -304,6 +369,8 @@ export default {
     },
   },
   created() {
+    this.getProvince()
+    // this.getCities();
     this.getBranches();
     this.getListWarehouse();
     this.getListCustomersDefault();
