@@ -29,6 +29,24 @@
               alt="Gambar Ayam"
               @click="openModalProduct(product['id'])"
             />
+            <div class="p-2 justify-content-around">
+              <span
+                class="m-1 toolbar-item"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="Ubah Produk"
+                @click="openModalProduct(product['id'])"
+                ><i class="fad fa-edit"></i
+              ></span>
+              <span
+                class="m-1 text-danger toolbar-item"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="Hapus Produk"
+                @click="openModalRemoveProduct(product['id'])"
+                ><i class="fad fa-trash"></i
+              ></span>
+            </div>
           </div>
           <div class="card-body">
             <h5 class="card-title card-title-product">{{ product["name"] }}</h5>
@@ -545,7 +563,9 @@
                         }"
                         id="partnerCommission"
                         placeholder="0000"
-                        v-model.number="editProduct['partnerCommission']['data']"
+                        v-model.number="
+                          editProduct['partnerCommission']['data']
+                        "
                         @keyup="calculatePrice"
                       />
                       <div class="invalid-feedback">
@@ -661,6 +681,46 @@
             <!-- <button type="button" class="btn btn-primary" @click="saveProduct">
               simpan
             </button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="modal-remove-product"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="exampleModalLabel">Hapus Produk</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Apakah Anda Yakin Ingin Menghapus Produk ?</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              tutup
+            </button>
+            <button type="button" class="btn btn-danger" @click="removeProduct">
+              hapus
+            </button>
           </div>
         </div>
       </div>
@@ -809,6 +869,7 @@ export default {
       },
       selectedProduct: {},
       userStocks: [],
+      selectedRemove: 0,
     };
   },
   methods: {
@@ -1066,6 +1127,42 @@ export default {
       $("#nav-detail").tab("show");
       this.$root.loading = false;
     },
+    openModalRemoveProduct(id) {
+      this.selectedRemove = id;
+      $("#modal-remove-product").modal("show");
+    },
+    removeProduct() {
+      this.$root.loading = true;
+      return this.$http
+        .delete(
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/items/${this.selectedRemove}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((results) => {
+          if (results["data"]["success"]) {
+            this.$root.loading = false;
+            this.getProducts();
+            $("#modal-remove-product").modal("hide");
+            this.$alertify.success("Berhasil Menghapus");
+            return;
+          }
+            this.$root.loading = false;
+        })
+        .catch((error) => {
+          if (error.response["data"]["message"]) {
+            this.addProduct["code"]["error"] = true;
+            this.addProduct["code"]["errorMessage"] =
+              error.response["data"]["message"];
+          }
+            this.$root.loading = false;
+          // this.$alertify.error(error.response["data"]["message"]);
+        });
+    },
     editPriceLabel(event) {
       var target = event.target || event.srcElement;
       target.contentEditable = true;
@@ -1164,9 +1261,11 @@ export default {
           this.$alertify.error(error.response["data"]["message"]);
         });
     },
-    calculatePrice(){
-      this.editProduct['grand_price']['data'] = parseInt(this.editProduct['price']['data']) + parseInt(this.editProduct['centralCommission']['data']) +  (this.editProduct['partnerCommission']['data'])
-
+    calculatePrice() {
+      this.editProduct["grand_price"]["data"] =
+        parseInt(this.editProduct["price"]["data"]) +
+        parseInt(this.editProduct["centralCommission"]["data"]) +
+        this.editProduct["partnerCommission"]["data"];
     },
     syncPrice(id) {
       this.$root.loading = true;
@@ -1193,7 +1292,7 @@ export default {
               this.$alertify.success("Berhasil sinkron harga");
               this.$root.loading = false;
               // let price = results["data"]["data"]["d"]["balanceUnitCost"];
-              this.calculatePrice()
+              this.calculatePrice();
               return;
             } else {
               results["data"]["data"]["d"].map((message) => {
@@ -1357,6 +1456,10 @@ export default {
 
 .sync-price {
   margin-right: 10px;
+}
+
+.toolbar-item:hover {
+  cursor: pointer;
 }
 
 @media only screen and (max-width: 600px) {
