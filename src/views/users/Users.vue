@@ -67,7 +67,7 @@
         </div>
       </div> -->
     </div>
-    <div class="table-responsive">
+    <div class="table-responsive overflow-x-none">
       <table class="table table-borderless table-hover">
         <thead>
           <tr class="text-nowrap">
@@ -127,20 +127,39 @@
               </div>
             </td>
             <td>
-              <button
-                @click="editUser(user['id'])"
-                type="button"
-                class="btn btn-outline-warning"
-              >
-                ubah
-              </button>
-              <button
-                @click="deleteUser(user['id'])"
-                type="button"
-                class="btn btn-outline-danger ml-2"
-              >
-                hapus
-              </button>
+              <div class="dropdown">
+                <button
+                  class="btn btn-secondary dropdown-toggle"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  Edit
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a
+                    class="dropdown-item"
+                    href="javascript:void(0)"
+                    @click="editUser(user['id'])"
+                    >Ubah Mitra</a
+                  >
+                  <a
+                    class="dropdown-item"
+                    href="javascript:void(0)"
+                    @click="deleteUser(user['id'])"
+                    >Hapus Mitra</a
+                  >
+                     <div class="dropdown-divider"></div>
+                  <a
+                    class="dropdown-item"
+                    href="javascript:void(0)"
+                    @click="editPassword(user['id'])"
+                    >Ubah Password</a
+                  >
+                </div>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -199,6 +218,28 @@
         </div>
       </div>
     </div>
+
+
+    <!-- Modal -->
+<div class="modal fade" id="modal-edit-password" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title" id="exampleModalLabel">Ubah Password</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">tutup</button>
+        <button type="button" class="btn btn-warning">update password</button>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </template>
 
@@ -212,18 +253,35 @@ export default {
   data() {
     return {
       users: [],
-      selectedUser: 0,
-    };
+      selectedUser: {
+        user: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: []
+        },
+        password: {
+          data: "",
+          error: false,
+          errorMessage: "",
+          additionalData: []
+        }
+      },
+    }
   },
   methods: {
+    editPassword(id){
+      this.selectedUser['user']['data'] = id;
+      $("#modal-edit-password").modal('show');
+    },
     deleteUser(id) {
-      this.selectedUser = id;
+      this.selectedUser['user']['data'] = id;
       $("#modal-remove-user").modal("show");
     },
     removeUser() {
       return this.$http
         .delete(
-          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/user/${this.selectedUser}`,
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/user/${this.selectedUser['user']['data']}`,
           {
             headers: {
               Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
@@ -370,5 +428,9 @@ export default {
 .card-col:hover {
   transform: scaleY(1.1);
   cursor: pointer;
+}
+
+.overflow-x-none{
+ overflow-x: unset; 
 }
 </style>

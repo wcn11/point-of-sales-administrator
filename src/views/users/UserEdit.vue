@@ -22,16 +22,16 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <!-- <div class="form-group">
         <label for="password">Password</label>
-        <!-- <input
+        <input
           name="password"
           type="password"
           class="form-control"
           id="password"
           v-model="password"
-        /> -->
-      </div>
+        />
+      </div> -->
 
       <div class="form-group">
         <label for="inputAddress">Provinsi</label>
