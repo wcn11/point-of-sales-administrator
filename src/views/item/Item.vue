@@ -457,6 +457,8 @@
                         :class="{
                           'is-invalid': editProduct['category']['error'],
                         }"
+
+                        disabled="disabled"
                         v-model="editProduct['category']['data']"
                       >
                         <option value="" disabled selected>
@@ -572,7 +574,36 @@
                         {{ editProduct["partnerCommission"]["errorMessage"] }}
                       </div>
                     </div>
-                    <div class="form-group">
+
+
+              <div class="form-group">
+                <label> Harga End-user </label>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    checked="true"
+                    id="round-price"
+                    :disabled="
+                      Object.keys(editProduct['grand_price']['data']).length < 0
+                    "
+                    @click="roundPrice($event.target.checked, 'update')"
+                  />
+                  <small class="form-check-label" for="defaultCheck1">
+                    bulatkan harga
+                  </small>
+                </div>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="exampleFormControlInput1"
+                  placeholder="harga"
+                  v-model="editProduct['grand_price']['data']"
+                  @keypress="isNumber($event)"
+                />
+              </div>
+                    
+                    <!-- <div class="form-group">
                       <label for="grand_price">harga jual</label>
                       <input
                         type="text"
@@ -587,7 +618,7 @@
                       <div class="invalid-feedback">
                         {{ editProduct["grand_price"]["errorMessage"] }}
                       </div>
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                       <label for="price">Foto / Gambar</label>
@@ -1113,6 +1144,8 @@ export default {
         (this.editProduct["grand_price"]["data"] =
           this.selectedProduct.grand_price),
         (this.editProduct["image"]["data"] = this.selectedProduct.image);
+        (this.editProduct["realPrice"] = this.selectedProduct.grand_price);
+        this.roundPrice($("#round-price")[0]["checked"])
     },
     openModalProduct(id) {
       this.$root.loading = true;
@@ -1151,7 +1184,7 @@ export default {
             this.$alertify.success("Berhasil Menghapus");
             return;
           }
-            this.$root.loading = false;
+          this.$root.loading = false;
         })
         .catch((error) => {
           if (error.response["data"]["message"]) {
@@ -1159,7 +1192,7 @@ export default {
             this.addProduct["code"]["errorMessage"] =
               error.response["data"]["message"];
           }
-            this.$root.loading = false;
+          this.$root.loading = false;
           // this.$alertify.error(error.response["data"]["message"]);
         });
     },
@@ -1376,6 +1409,49 @@ export default {
           this.$alertify.error(error.response["data"]["message"]);
           this.$root.loading = false;
         });
+    },
+
+    roundPrice(checked) {
+        if (parseInt(this.editProduct['grand_price']['data']) > 0) {
+          if (checked) {
+            let money =
+              this.editProduct["grand_price"]['data'].toString();
+            let substrHundred = money.slice(-3);
+            let substrTens = money.slice(-2);
+            let concatHundredToFloat = Math.round(
+              substrHundred.substring(0, 1).concat(".").concat(substrTens)
+            );
+            let roundedPrice = concatHundredToFloat.toString() + "00";
+            let price = parseFloat(
+              parseInt(
+                money.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1.")
+              )
+                .toFixed(3)
+                .replace(/[^\d]/g, "")
+            );
+            return (this.editProduct["grand_price"]['data'] =
+              price + parseInt(roundedPrice));
+          }else{
+          this.editProduct["grand_price"]['data'] =
+            this.editProduct["realPrice"];
+          // this.editProduct["realPrice"] = 0;
+          }
+        }
+      
+    },
+
+    isNumber: function (evt) {
+      evt = evt ? evt : window.event;
+      var charCode = evt.which ? evt.which : evt.keyCode;
+      if (
+        charCode > 31 &&
+        (charCode < 48 || charCode > 57) &&
+        charCode !== 46
+      ) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
     },
   },
   mounted() {

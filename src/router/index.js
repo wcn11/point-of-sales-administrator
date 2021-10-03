@@ -4,6 +4,8 @@ import Home from '../views/Home.vue'
 import User from '../views/users/Users.vue'
 import Product from '../views/item/Item.vue'
 import Category from '../views/category/category.vue'
+import Offer from '../views/offer/Offer.vue'
+import Promo from '../views/promo/Promo.vue'
 
 Vue.use(VueRouter)
 
@@ -66,6 +68,20 @@ const routes = [{
       path: '/produk/:categoryId',
       name: 'products',
       component: Product,
+      meta: {
+        requiresAuth: true
+      }
+    }, {
+      path: '/penawaran/:userId',
+      name: 'offer',
+      component: Offer,
+      meta: {
+        requiresAuth: true
+      }
+    }, {
+      path: '/promo/:userId',
+      name: 'promo',
+      component: Promo,
       meta: {
         requiresAuth: true
       }

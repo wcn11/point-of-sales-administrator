@@ -76,8 +76,10 @@
             <th>Cabang</th>
             <th>Gudang</th>
             <th>Status Aktif</th>
+            <th>Pusat</th>
             <th>Admin</th>
             <th>Ubah Detail</th>
+            <th>Produk Pilihan</th>
           </tr>
         </thead>
         <tbody>
@@ -107,6 +109,22 @@
                   class="custom-control-label"
                   :for="`switchActive-${user['id']}`"
                   >{{ user["is_active"] | isActive }}</label
+                >
+              </div>
+            </td>
+            <td>
+              <div class="custom-control custom-switch">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  @click="updateDefaultUser(user)"
+                  :id="`switchDefault-${user['id']}`"
+                  v-model="user['is_default']"
+                />
+                <label
+                  class="custom-control-label"
+                  :for="`switchDefault-${user['id']}`"
+                  >{{ user["is_default"] | isDefault }}</label
                 >
               </div>
             </td>
@@ -151,12 +169,39 @@
                     @click="deleteUser(user['id'])"
                     >Hapus Mitra</a
                   >
-                     <div class="dropdown-divider"></div>
+                  <div class="dropdown-divider"></div>
                   <a
                     class="dropdown-item"
                     href="javascript:void(0)"
                     @click="editPassword(user['id'])"
                     >Ubah Password</a
+                  >
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="dropdown">
+                <button
+                  class="btn btn-secondary dropdown-toggle"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  Lainnya
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <router-link
+                    class="dropdown-item"
+                    :to="{ name: 'offer', params: { userId: user['id'] } }"
+                    >Penawaran</router-link
+                  >
+                  <div class="dropdown-divider"></div>
+                  <router-link
+                    class="dropdown-item"
+                    :to="{ name: 'promo', params: { userId: user['id'] } }"
+                    >Promo</router-link
                   >
                 </div>
               </div>
@@ -219,27 +264,43 @@
       </div>
     </div>
 
-
     <!-- Modal -->
-<div class="modal fade" id="modal-edit-password" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-warning">
-        <h5 class="modal-title" id="exampleModalLabel">Ubah Password</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">tutup</button>
-        <button type="button" class="btn btn-warning">update password</button>
+    <div
+      class="modal fade"
+      id="modal-edit-password"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title" id="exampleModalLabel">Ubah Password</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">...</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              tutup
+            </button>
+            <button type="button" class="btn btn-warning">
+              update password
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
   </div>
 </template>
 
@@ -258,30 +319,30 @@ export default {
           data: "",
           error: false,
           errorMessage: "",
-          additionalData: []
+          additionalData: [],
         },
         password: {
           data: "",
           error: false,
           errorMessage: "",
-          additionalData: []
-        }
+          additionalData: [],
+        },
       },
-    }
+    };
   },
   methods: {
-    editPassword(id){
-      this.selectedUser['user']['data'] = id;
-      $("#modal-edit-password").modal('show');
+    editPassword(id) {
+      this.selectedUser["user"]["data"] = id;
+      $("#modal-edit-password").modal("show");
     },
     deleteUser(id) {
-      this.selectedUser['user']['data'] = id;
+      this.selectedUser["user"]["data"] = id;
       $("#modal-remove-user").modal("show");
     },
     removeUser() {
       return this.$http
         .delete(
-          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/user/${this.selectedUser['user']['data']}`,
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/user/${this.selectedUser["user"]["data"]}`,
           {
             headers: {
               Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
@@ -368,6 +429,40 @@ export default {
           this.$alertify.error(error.response["data"]["message"]);
         });
     },
+    updateDefaultUser(user) {
+      let status = this.users.filter((val) => val["id"] === user["id"]);
+
+      if (this.users.length === 1) {
+        if (status[0]["is_default"] !== 0) {
+          this.$alertify.warning("Harus ada 1 mitra default");
+          this.getUsers();
+          return;
+        }
+      }
+
+      return this.$http
+        .put(
+          `${process.env.VUE_APP_BASE_HOST_API_ADMIN}/users/default`,
+          {
+            user_id: user["id"],
+            is_default: !status[0]["is_default"],
+          },
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt-admin"),
+            },
+          }
+        )
+        .then((results) => {
+          if (results["data"]["success"]) {
+            this.getUsers();
+            this.$alertify.success(results["data"]["message"]);
+          }
+        })
+        .catch((error) => {
+          this.$alertify.error(error.response["data"]["message"]);
+        });
+    },
     updateStatusAdmin(id) {
       let status = this.users.filter((user) => user["id"] === id);
 
@@ -385,13 +480,11 @@ export default {
           }
         )
         .then((results) => {
-          console.log(results);
           if (results["data"]["success"]) {
             this.$alertify.success(results["data"]["message"]);
           }
         })
         .catch((error) => {
-          console.log(error.response);
           this.$alertify.error(error.response["data"]["message"]);
         });
     },
@@ -399,6 +492,9 @@ export default {
   filters: {
     isActive(active) {
       return active === 1 || active === true ? "Aktif" : "Non-Aktif";
+    },
+    isDefault(active) {
+      return active === 1 || active === true ? "Pusat" : "Bukan Pusat";
     },
   },
   created() {
@@ -430,7 +526,7 @@ export default {
   cursor: pointer;
 }
 
-.overflow-x-none{
- overflow-x: unset; 
+.overflow-x-none {
+  overflow-x: unset;
 }
 </style>
