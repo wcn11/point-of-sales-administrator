@@ -9,7 +9,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="m-auto">
-          <button
+          <!-- <button
             class="btn btn-info mr-1"
             id="btn-update-mass-price"
             data-toggle="tooltip"
@@ -19,24 +19,23 @@
           >
             <i class="fad fa-usd-circle"></i> Mass Update Harga
             <span class="badge badge-danger">segera</span>
-          </button>
+          </button> -->
           <router-link
             :to="{ name: 'UserAdd' }"
             class="btn btn-warning mr-1"
             id="btn-update-mass-price"
             data-toggle="tooltip"
             data-placement="bottom"
-            title="Update Masal Seluruh Harga Produk"
+            title="Buat Mitra Baru"
           >
             <i class="fad fa-usd-circle"></i> tambah mitra
           </router-link>
           <router-link
             :to="{ name: 'category' }"
             class="text-decoration-none btn btn-dark mr-1"
-            id="btn-update-mass-price"
             data-toggle="tooltip"
             data-placement="bottom"
-            title="Update Masal Seluruh Harga Produk"
+            title="Pengaturan Produk"
           >
             <i class="fad fa-box-usd"></i> Pengaturan Produk
           </router-link>
@@ -67,7 +66,7 @@
         </div>
       </div> -->
     </div>
-    <div class="table-responsive overflow-x-none">
+    <div class="table-responsive">
       <table class="table table-borderless table-hover">
         <thead>
           <tr class="text-nowrap">
