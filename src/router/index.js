@@ -6,6 +6,7 @@ import Product from '../views/item/Item.vue'
 import Category from '../views/category/category.vue'
 import Offer from '../views/offer/Offer.vue'
 import Promo from '../views/promo/Promo.vue'
+import Notifiation from '../views/notification/Notification.vue'
 
 Vue.use(VueRouter)
 
@@ -78,14 +79,21 @@ const routes = [{
       meta: {
         requiresAuth: true
       }
-    }, {
-      path: '/promo/:userId',
-      name: 'promo',
-      component: Promo,
-      meta: {
-        requiresAuth: true
-      }
-    },
+  }, {
+    path: '/promo/:userId',
+    name: 'promo',
+    component: Promo,
+    meta: {
+      requiresAuth: true
+    }
+  }, {
+    path: '/push/:userId',
+    name: 'push',
+    component: Notifiation,
+    meta: {
+      requiresAuth: true
+    }
+  },
 ]
 
 const router = new VueRouter({

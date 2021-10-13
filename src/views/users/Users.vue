@@ -40,7 +40,7 @@
           >
             <i class="fad fa-box-usd"></i> Pengaturan Produk
           </router-link>
-          <router-link
+          <!-- <router-link
             :to="{ name: 'category' }"
             class="text-decoration-none btn btn-danger mr-1"
             id="btn-update-mass-price"
@@ -49,7 +49,7 @@
             title="Stok Yang Segera Harus Di Update"
           >
             <i class="fad fa-box-usd"></i> Stok Kurang (2)
-          </router-link>
+          </router-link> -->
         </div>
       </div>
       <!-- <div class="col-md-2">
@@ -202,6 +202,11 @@
                     class="dropdown-item"
                     :to="{ name: 'promo', params: { userId: user['id'] } }"
                     >Promo</router-link
+                  >
+                  <router-link
+                    class="dropdown-item"
+                    :to="{ name: 'push', params: { userId: user['id'] } }"
+                    >Notifikasi (Uji Coba)</router-link
                   >
                 </div>
               </div>

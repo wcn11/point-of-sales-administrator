@@ -13,8 +13,6 @@ window.$ = window.jQuery
 
 import bootstrap from 'bootstrap'
 import bootstrapStyle from 'bootstrap/dist/css/bootstrap.min.css'
-// import './plugins/css/bootstrap.min.css'
-// require('./plugins/css/bootstrap.min.css')
 
 import bootstrapSwitch from "bootstrap-switch"
 Vue.use(bootstrapSwitch)
