@@ -674,7 +674,6 @@
                     type="text"
                     class="form-control"
                     v-model="stock['stock']"
-                    readonly
                   />
                 </div>
 
