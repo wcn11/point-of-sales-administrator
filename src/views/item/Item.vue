@@ -677,7 +677,7 @@
                   />
                 </div>
 
-                <button
+                <!-- <button
                   type="button"
                   @click="syncProductStock(selectedProduct['no'], stock, index)"
                   class="btn btn-primary mb-2"
@@ -686,7 +686,7 @@
                   title="Sinkron Dengan Accurate"
                 >
                   <i class="fad fa-sync-alt"></i>
-                </button>
+                </button> -->
               </div>
 
               <button
